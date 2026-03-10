@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EvoluiTO — Evolução Clínica Guiada por I.A.</title>
+  <meta name="description"
+    content="Transforme gravações de atendimento em relatórios clínicos completos com inteligência artificial. A plataforma definitiva para Terapeutas Ocupacionais.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { blue: '#3478C6', dark: '#1D4ED8', light: '#60A5FA', green: '#7ED321', purple: '#9B59B6', orange: '#F39C12' },
+            surface: { base: '#F1F5F9', elevated: '#FFFFFF', floating: '#FFFFFF' },
+            txt: { primary: '#1E293B', secondary: '#64748B', light: '#94A3B8' },
+            brd: '#E2E8F0',
+          },
+          fontFamily: { heading: ['"Plus Jakarta Sans"', 'sans-serif'], body: ['Inter', 'sans-serif'] },
+        }
+      }
+    }
+  </script>
+
+  <!-- AOS -->
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: auto;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      color: #1E293B;
+      background: #F8FAFC;
+      overflow-x: hidden;
+    }
+
+    /* SVG Noise */
+    .noise-overlay::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 200px;
+      pointer-events: none;
+      mix-blend-mode: overlay;
+      z-index: 1;
+    }
+
+    /* Dot grid */
+    .dot-grid {
+      background-image: radial-gradient(circle, #3478C6 0.8px, transparent 0.8px);
+      background-size: 32px 32px;
+      opacity: 0.04;
+    }
+
+    /* Shadows */
+    .shadow-brand-sm {
+      box-shadow: 0 1px 3px rgba(52, 120, 198, 0.06), 0 1px 2px rgba(52, 120, 198, 0.04);
+    }
+
+    .shadow-brand-md {
+      box-shadow: 0 4px 16px rgba(52, 120, 198, 0.08), 0 2px 4px rgba(52, 120, 198, 0.04), 0 0 0 1px rgba(226, 232, 240, 0.6);
+    }
+
+    .shadow-brand-lg {
+      box-shadow: 0 20px 40px -8px rgba(52, 120, 198, 0.12), 0 8px 16px -4px rgba(52, 120, 198, 0.06);
+    }
+
+    .shadow-brand-glow {
+      box-shadow: 0 0 30px rgba(52, 120, 198, 0.25), 0 8px 20px rgba(52, 120, 198, 0.15);
+    }
+
+    /* Phone mockup */
+    .phone-frame {
+      background: #1E293B;
+      border-radius: 40px;
+      padding: 12px;
+      box-shadow: 0 30px 60px -12px rgba(30, 41, 59, 0.3), 0 18px 36px -18px rgba(30, 41, 59, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .phone-frame img {
+      border-radius: 28px;
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .phone-notch {
+      width: 100px;
+      height: 24px;
+      background: #1E293B;
+      border-radius: 0 0 16px 16px;
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+    }
+
+    /* Cursor glow */
+    #cursor-glow {
+      position: fixed;
+      width: 300px;
+      height: 300px;
+      pointer-events: none;
+      z-index: 9999;
+      background: radial-gradient(circle, rgba(52, 120, 198, 0.08) 0%, transparent 70%);
+      transform: translate(-50%, -50%);
+      transition: opacity 0.3s ease;
+      opacity: 0;
+    }
+
+    body:hover #cursor-glow {
+      opacity: 1;
+    }
+
+    /* Gradient text */
+    .gradient-text {
+      background: linear-gradient(135deg, #3478C6 0%, #1D4ED8 50%, #9B59B6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Button transitions - only transform + opacity + box-shadow + background-color */
+    .btn-transition {
+      transition-property: transform, opacity, box-shadow, background-color, color;
+      transition-duration: 200ms;
+      transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .btn-transition:active {
+      transform: translateY(0) scale(0.98) !important;
+    }
+
+    .btn-transition:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(52, 120, 198, 0.4);
+    }
+
+    /* Nav transition */
+    .nav-scrolled {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    }
+
+    /* Step line */
+    .step-line {
+      stroke-dasharray: 1000;
+      stroke-dashoffset: 1000;
+    }
+
+    /* FAQ */
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, padding 0.3s ease;
+      opacity: 0;
+      padding-top: 0;
+    }
+
+    .faq-item.open .faq-answer {
+      max-height: 300px;
+      opacity: 1;
+      padding-top: 16px;
+    }
+
+    .faq-item .faq-chevron {
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .faq-item.open .faq-chevron {
+      transform: rotate(180deg);
+    }
+
+    /* Counter */
+    .counter {
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Stagger delays */
+    [data-aos][data-aos-delay="100"] {
+      transition-delay: 100ms;
+    }
+
+    [data-aos][data-aos-delay="200"] {
+      transition-delay: 200ms;
+    }
+
+    [data-aos][data-aos-delay="300"] {
+      transition-delay: 300ms;
+    }
+
+    [data-aos][data-aos-delay="400"] {
+      transition-delay: 400ms;
+    }
+
+    [data-aos][data-aos-delay="500"] {
+      transition-delay: 500ms;
+    }
+
+    /* Mobile menu */
+    .mobile-menu {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-10px);
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .mobile-menu.open {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    /* Pricing highlight */
+    .pricing-highlight {
+      background: linear-gradient(135deg, #3478C6 0%, #1D4ED8 100%);
+    }
+
+    /* Smooth scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94A3B8;
+    }
+
+    /* Badge pulse */
+    @keyframes badge-pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.5;
+      }
+    }
+
+    .badge-dot {
+      animation: badge-pulse 2s ease-in-out infinite;
+    }
+
+    /* Float animation for hero visual */
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0px) rotateY(-8deg) rotateX(4deg);
+      }
+
+      50% {
+        transform: translateY(-12px) rotateY(-8deg) rotateX(4deg);
+      }
+    }
+
+    .hero-float {
+      animation: float 6s ease-in-out infinite;
+    }
+
+
+
+    /* Sparkle animation */
+    @keyframes sparkle {
+
+      0%,
+      100% {
+        transform: scale(0) rotate(0deg);
+        opacity: 0;
+      }
+
+      50% {
+        transform: scale(1) rotate(180deg);
+        opacity: 1;
+      }
+    }
+
+    /* Link hover */
+    .nav-link {
+      position: relative;
+    }
+
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: #3478C6;
+      transition: width 0.3s ease;
+      border-radius: 1px;
+    }
+
+    .nav-link:hover::after,
+    .nav-link.active::after {
+      width: 100%;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Cursor Glow -->
+  <div id="cursor-glow"></div>
+
+  <!-- ============================================ -->
+  <!-- NAVBAR -->
+  <!-- ============================================ -->
+  <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-[background,box-shadow] duration-300">
+    <div class="max-w-7xl mx-auto px-5 lg:px-8">
+      <div class="flex items-center justify-between h-16 lg:h-20">
+        <!-- Logo -->
+        <a href="#" class="flex items-center gap-1 font-heading font-extrabold text-2xl tracking-tight">
+          <span class="text-txt-primary">Evolui</span><span class="text-brand-blue">TO</span>
+        </a>
+
+        <!-- Desktop Links -->
+        <div class="hidden lg:flex items-center gap-8">
+          <a href="#funcionalidades"
+            class="nav-link text-sm font-medium text-txt-secondary hover:text-brand-blue transition-colors duration-200">Funcionalidades</a>
+          <a href="#como-funciona"
+            class="nav-link text-sm font-medium text-txt-secondary hover:text-brand-blue transition-colors duration-200">Como
+            Funciona</a>
+          <a href="#beneficios"
+            class="nav-link text-sm font-medium text-txt-secondary hover:text-brand-blue transition-colors duration-200">Benefícios</a>
+          <a href="#depoimentos"
+            class="nav-link text-sm font-medium text-txt-secondary hover:text-brand-blue transition-colors duration-200">Depoimentos</a>
+          <a href="#solicitar"
+            class="nav-link text-sm font-medium text-txt-secondary hover:text-brand-blue transition-colors duration-200">Solicitar</a>
+          <a href="#faq"
+            class="nav-link text-sm font-medium text-txt-secondary hover:text-brand-blue transition-colors duration-200">FAQ</a>
+        </div>
+
+        <!-- Desktop CTAs -->
+        <div class="hidden lg:flex items-center gap-4">
+          <a href="#" class="btn-transition text-sm font-semibold text-txt-secondary hover:text-brand-blue">Entrar</a>
+          <a href="#solicitar"
+            class="btn-transition inline-flex items-center gap-2 px-5 py-2.5 bg-brand-blue text-white text-sm font-semibold rounded-xl shadow-brand-md hover:bg-brand-dark hover:shadow-brand-glow hover:translate-y-[-1px]">
+            Solicitar Aplicativo
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m9 18 6-6-6-6" />
+            </svg>
+          </a>
+        </div>
+
+        <!-- Mobile Hamburger -->
+        <button id="menu-toggle" class="lg:hidden btn-transition p-2 rounded-lg hover:bg-surface-base"
+          aria-label="Menu">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" x2="20" y1="12" y2="12" />
+            <line x1="4" x2="20" y1="6" y2="6" />
+            <line x1="4" x2="20" y1="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu"
+      class="mobile-menu lg:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur-xl border-b border-brd shadow-brand-lg">
+      <div class="px-5 py-6 flex flex-col gap-4">
+        <a href="#funcionalidades"
+          class="mobile-link text-base font-medium text-txt-secondary hover:text-brand-blue py-2">Funcionalidades</a>
+        <a href="#como-funciona"
+          class="mobile-link text-base font-medium text-txt-secondary hover:text-brand-blue py-2">Como Funciona</a>
+        <a href="#beneficios"
+          class="mobile-link text-base font-medium text-txt-secondary hover:text-brand-blue py-2">Benefícios</a>
+        <a href="#depoimentos"
+          class="mobile-link text-base font-medium text-txt-secondary hover:text-brand-blue py-2">Depoimentos</a>
+        <a href="#solicitar"
+          class="mobile-link text-base font-medium text-txt-secondary hover:text-brand-blue py-2">Solicitar</a>
+        <a href="#faq" class="mobile-link text-base font-medium text-txt-secondary hover:text-brand-blue py-2">FAQ</a>
+        <div class="pt-4 border-t border-brd flex flex-col gap-3">
+          <a href="#" class="text-center text-sm font-semibold text-txt-secondary py-2">Entrar</a>
+          <a href="#solicitar"
+            class="btn-transition text-center px-5 py-3 bg-brand-blue text-white text-sm font-semibold rounded-xl shadow-brand-md">Solicitar Aplicativo</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ============================================ -->
+  <!-- HERO -->
+  <!-- ============================================ -->
+  <section id="hero" class="relative min-h-screen flex items-center pt-20 lg:pt-0 overflow-hidden">
+    <!-- Background -->
+    <div class="absolute inset-0 bg-gradient-to-br from-white via-[#f0f6ff] to-[#e8f0fe]"></div>
+    <div class="absolute inset-0 dot-grid"></div>
+    <div class="absolute inset-0 noise-overlay"></div>
+    <div class="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] rounded-full bg-brand-blue/5 blur-3xl"></div>
+    <div class="absolute bottom-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-brand-purple/5 blur-3xl"></div>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-5 lg:px-8 w-full py-16 lg:py-0">
+      <div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
+        <!-- Left: Text -->
+        <div class="flex-1 text-center lg:text-left max-w-2xl">
+          <!-- Logo / Icon -->
+          <div
+            class="hero-el inline-flex items-center justify-center w-20 h-20 bg-white rounded-2xl shadow-brand-md border border-brd mb-8 relative p-3">
+            <div class="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-brand-green border-2 border-white"></div>
+            <img src="imagens_de_referencia/image copy 8.png" alt="EvoluiTO Icon"
+              class="w-full h-full object-contain" />
+          </div>
+
+          <!-- Headline -->
+          <h1
+            class="hero-el font-heading font-extrabold text-3xl sm:text-4xl lg:text-5xl xl:text-[3.5rem] leading-[1.1] tracking-tight text-txt-primary mb-6">
+            A revolução na <span class="gradient-text">Terapia Ocupacional</span> guiada por I.A.
+          </h1>
+
+          <!-- Subheadline -->
+          <p class="hero-el text-base lg:text-lg text-txt-secondary leading-relaxed mb-8 max-w-xl mx-auto lg:mx-0">
+            O EvoluiTO transforma a sua prática clínica: de gravações simples de atendimento para PTIs, evoluções e
+            relatórios completos e estruturados em segundos. <strong class="text-txt-primary font-semibold">Mais tempo
+              focado no que importa: o progresso dos seus pacientes.</strong>
+          </p>
+
+          <!-- CTAs -->
+          <div class="hero-el flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-8">
+            <a href="#solicitar"
+              class="btn-transition inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-brand-blue text-white font-bold text-base rounded-2xl shadow-brand-glow hover:bg-brand-dark hover:translate-y-[-2px]">
+              Solicitar Meu Aplicativo
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m9 18 6-6-6-6" />
+              </svg>
+            </a>
+            <a href="#como-funciona"
+              class="btn-transition inline-flex items-center justify-center gap-2 px-7 py-3.5 border-2 border-brand-blue/20 text-brand-blue font-semibold text-base rounded-2xl hover:bg-brand-blue/5 hover:border-brand-blue/40">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="6 3 20 12 6 21 6 3" />
+              </svg>
+              Veja como funciona
+            </a>
+          </div>
+
+          <!-- Trust -->
+          <div
+            class="hero-el flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-2 text-sm text-txt-light">
+            <span class="flex items-center gap-1.5">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                stroke="#7ED321" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 6 9 17l-5-5" />
+              </svg>
+              100% personalizado
+            </span>
+            <span class="flex items-center gap-1.5">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                stroke="#7ED321" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 6 9 17l-5-5" />
+              </svg>
+              Pague apenas pelo que precisa
+            </span>
+            <span class="flex items-center gap-1.5">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                stroke="#7ED321" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 6 9 17l-5-5" />
+              </svg>
+              Suporte dedicado
+            </span>
+          </div>
+        </div>
+
+        <!-- Right: Phone Mockup -->
+        <div class="flex-1 flex justify-center lg:justify-end relative">
+          <div id="hero-phone" class="hero-float z-10" style="perspective: 1200px;">
+            <div class="phone-frame relative w-[260px] sm:w-[280px] lg:w-[300px]" data-tilt data-tilt-max="8"
+              data-tilt-speed="400" data-tilt-glare="true" data-tilt-max-glare="0.15">
+              <div class="phone-notch"></div>
+              <img src="imagens_de_referencia/image.png" alt="EvoluiTO Dashboard" loading="eager">
+            </div>
+          </div>
+
+          <!-- Floating accent elements -->
+          <div class="absolute -top-4 -right-4 w-20 h-20 rounded-2xl bg-brand-orange/10 blur-xl z-0"></div>
+          <div class="absolute -bottom-8 -left-8 w-24 h-24 rounded-full bg-brand-green/10 blur-xl z-0"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================ -->
+  <!-- SOCIAL PROOF BAR -->
+  <!-- ============================================ -->
+  <section class="relative z-10 py-12 lg:py-16 bg-white border-y border-brd">
+    <div class="max-w-7xl mx-auto px-5 lg:px-8">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+        <div class="text-center" data-aos="fade-up">
+          <div class="font-heading font-extrabold text-3xl lg:text-4xl text-brand-blue counter" data-target="500"
+            data-suffix="+">0</div>
+          <div class="text-sm text-txt-secondary mt-1 font-medium">Terapeutas Ativos</div>
+        </div>
+        <div class="text-center" data-aos="fade-up" data-aos-delay="100">
+          <div class="font-heading font-extrabold text-3xl lg:text-4xl text-brand-blue counter" data-target="10000"
+            data-suffix="+">0</div>
+          <div class="text-sm text-txt-secondary mt-1 font-medium">Relatórios Gerados</div>
+        </div>
+        <div class="text-center" data-aos="fade-up" data-aos-delay="200">
+          <div class="font-heading font-extrabold text-3xl lg:text-4xl text-brand-orange">
+            <span class="counter" data-target="4.8" data-decimals="1">0</span>/5
+          </div>
+          <div class="text-sm text-txt-secondary mt-1 font-medium">Satisfação dos Usuários</div>
+        </div>
+        <div class="text-center" data-aos="fade-up" data-aos-delay="300">
+          <div class="font-heading font-extrabold text-3xl lg:text-4xl text-brand-green counter" data-target="98"
+            data-suffix="%">0</div>
+          <div class="text-sm text-txt-secondary mt-1 font-medium">Economia de Tempo</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================ -->
+  <!-- FEATURES -->
+  <!-- ============================================ -->
+  <section id="funcionalidades" class="py-20 lg:py-28 relative">
+    <div class="max-w-7xl mx-auto px-5 lg:px-8">
+      <!-- Header -->
+      <div class="text-center max-w-2xl mx-auto mb-16" data-aos="fade-up">
+        <span
+          class="inline-block text-sm font-semibold text-brand-blue bg-brand-blue/8 px-4 py-1.5 rounded-full mb-4">Funcionalidades</span>
+        <h2 class="font-heading font-extrabold text-2xl sm:text-3xl lg:text-4xl text-txt-primary tracking-tight mb-4">
+          Tudo que você precisa para evoluir sua prática clínica
+        </h2>
+        <p class="text-txt-secondary text-base lg:text-lg leading-relaxed">
+          Ferramentas inteligentes projetadas por e para Terapeutas Ocupacionais.
+        </p>
+      </div>
+
+      <!-- Cards Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+        <!-- Card 1 -->
+        <div
+          class="tilt-card group bg-white rounded-2xl p-7 shadow-brand-md hover:shadow-brand-lg border border-brd/50 btn-transition hover:translate-y-[-4px]"
+          data-aos="fade-up" data-aos-delay="0">
+          <div
+            class="w-12 h-12 rounded-xl bg-brand-blue/8 flex items-center justify-center mb-5 group-hover:bg-brand-blue/15 transition-colors duration-200">
+            <i data-lucide="mic" class="w-6 h-6 text-brand-blue" stroke-width="2"></i>
+          </div>
+          <h3 class="font-heading font-bold text-lg text-txt-primary mb-2">Transcrição Inteligente</h3>
+          <p class="text-sm text-txt-secondary leading-relaxed">Grave ou envie áudios dos atendimentos. Nossa IA
+            transcreve e organiza automaticamente.</p>
+        </div>
+
+        <!-- Card 2 -->
+        <div
+          class="tilt-card group bg-white rounded-2xl p-7 shadow-brand-md hover:shadow-brand-lg border border-brd/50 btn-transition hover:translate-y-[-4px]"
+          data-aos="fade-up" data-aos-delay="100">
+          <div
+            class="w-12 h-12 rounded-xl bg-brand-purple/8 flex items-center justify-center mb-5 group-hover:bg-brand-purple/15 transition-colors duration-200">
+            <i data-lucide="file-text" class="w-6 h-6 text-brand-purple" stroke-width="2"></i>
+          </div>
+          <h3 class="font-heading font-bold text-lg text-txt-primary mb-2">Relatórios PTI Automáticos</h3>
+          <p class="text-sm text-txt-secondary leading-relaxed">Planos Terapêuticos Individuais gerados com base na
+            transcrição, prontos para revisar e assinar.</p>
+        </div>
+
+        <!-- Card 3 -->
+        <div
+          class="tilt-card group bg-white rounded-2xl p-7 shadow-brand-md hover:shadow-brand-lg border border-brd/50 btn-transition hover:translate-y-[-4px]"
+          data-aos="fade-up" data-aos-delay="200">
+          <div
+            class="w-12 h-12 rounded-xl bg-brand-green/10 flex items-center justify-center mb-5 group-hover:bg-brand-green/20 transition-colors duration-200">
+            <i data-lucide="clipboard-list" class="w-6 h-6 text-brand-green" stroke-width="2"></i>
+          </div>
+          <h3 class="font-heading font-bold text-lg text-txt-primary mb-2">Relatórios Estruturados</h3>
+          <p class="text-sm text-txt-secondary leading-relaxed">Evoluções clínicas completas, organizadas e estruturadas automaticamente no formato ideal para conselhos e convênios.</p>
+        </div>
+
+        <!-- Card 4 -->
+        <div
+          class="tilt-card group bg-white rounded-2xl p-7 shadow-brand-md hover:shadow-brand-lg border border-brd/50 btn-transition hover:translate-y-[-4px]"
+          data-aos="fade-up" data-aos-delay="300">
+          <div
+            class="w-12 h-12 rounded-xl bg-brand-orange/10 flex items-center justify-center mb-5 group-hover:bg-brand-orange/20 transition-colors duration-200">
+            <i data-lucide="users" class="w-6 h-6 text-brand-orange" stroke-width="2"></i>
+          </div>
+          <h3 class="font-heading font-bold text-lg text-txt-primary mb-2">Gestão de Pacientes</h3>
+          <p class="text-sm text-txt-secondary leading-relaxed">Cadastro, histórico, documentos e evolução de cada
+            paciente em um só lugar.</p>
+        </div>
+
+        <!-- Card 5 -->
+        <div
+          class="tilt-card group bg-white rounded-2xl p-7 shadow-brand-md hover:shadow-brand-lg border border-brd/50 btn-transition hover:translate-y-[-4px]"
+          data-aos="fade-up" data-aos-delay="400">
+          <div
+            class="w-12 h-12 rounded-xl bg-brand-blue/8 flex items-center justify-center mb-5 group-hover:bg-brand-blue/15 transition-colors duration-200">
+            <i data-lucide="calendar-days" class="w-6 h-6 text-brand-blue" stroke-width="2"></i>
+          </div>
+          <h3 class="font-heading font-bold text-lg text-txt-primary mb-2">Agenda Integrada</h3>
+          <p class="text-sm text-txt-secondary leading-relaxed">Organize seus atendimentos, receba lembretes e mantenha
+            tudo sincronizado.</p>
+        </div>
+
+        <!-- Card 6 -->
+        <div
+          class="tilt-card group bg-white rounded-2xl p-7 shadow-brand-md hover:shadow-brand-lg border border-brd/50 btn-transition hover:translate-y-[-4px]"
+          data-aos="fade-up" data-aos-delay="500">
+          <div
+            class="w-12 h-12 rounded-xl bg-brand-purple/8 flex items-center justify-center mb-5 group-hover:bg-brand-purple/15 transition-colors duration-200">
+            <i data-lucide="bar-chart-3" class="w-6 h-6 text-brand-purple" stroke-width="2"></i>
+          </div>
+          <h3 class="font-heading font-bold text-lg text-txt-primary mb-2">Dashboard Completo</h3>
+          <p class="text-sm text-txt-secondary leading-relaxed">Visualize pacientes ativos, sessões do dia, rascunhos
+            pendentes e métricas de produtividade.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================ -->
+  <!-- HOW IT WORKS -->
+  <!-- ============================================ -->
+  <section id="como-funciona" class="py-20 lg:py-28 bg-white relative overflow-hidden">
+    <div class="absolute inset-0 noise-overlay"></div>
+    <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-blue/20 to-transparent">
+    </div>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-5 lg:px-8">
+      <!-- Header -->
+      <div class="text-center max-w-2xl mx-auto mb-16 lg:mb-20" data-aos="fade-up">
+        <span
+          class="inline-block text-sm font-semibold text-brand-blue bg-brand-blue/8 px-4 py-1.5 rounded-full mb-4">Como
+          Funciona</span>
+        <h2 class="font-heading font-extrabold text-2xl sm:text-3xl lg:text-4xl text-txt-primary tracking-tight mb-4">
+          Simples como gravar uma mensagem de voz
+        </h2>
+        <p class="text-txt-secondary text-base lg:text-lg leading-relaxed">
+          Três passos para transformar seus atendimentos em documentação profissional.
+        </p>
+      </div>
+
+      <!-- Steps -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-8 relative">
+        <!-- Connecting line (desktop only) -->
+        <div class="hidden lg:block absolute top-[140px] left-[20%] right-[20%] h-0.5">
+          <svg class="w-full h-2" viewBox="0 0 100 2" preserveAspectRatio="none">
+            <line x1="0" y1="1" x2="100" y2="1" stroke="#3478C6" stroke-width="0.5" stroke-dasharray="4,3"
+              class="step-line" opacity="0.3" />
+          </svg>
+        </div>
+
+        <!-- Step 1 -->
+        <div class="text-center relative" data-aos="fade-up">
+          <div
+            class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-brand-blue text-white font-heading font-bold text-sm mb-6 shadow-brand-md">
+            1</div>
+          <div class="phone-frame w-[180px] sm:w-[200px] mx-auto mb-6 relative">
+            <div class="phone-notch" style="width:70px; height:18px; border-radius: 0 0 12px 12px; top:12px;"></div>
+            <img src="imagens_de_referencia/image%20copy.png" alt="Gravação de Sessão" loading="lazy">
+          </div>
+          <h3 class="font-heading font-bold text-lg text-txt-primary mb-2">Grave o Atendimento</h3>
+          <p class="text-sm text-txt-secondary leading-relaxed max-w-xs mx-auto">Grave o áudio da sessão diretamente no
+            app ou envie uma gravação existente.</p>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="text-center relative" data-aos="fade-up" data-aos-delay="200">
+          <div
+            class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-brand-blue text-white font-heading font-bold text-sm mb-6 shadow-brand-md">
+            2</div>
+          <!-- Processing Visual -->
+          <div
+            class="w-[180px] sm:w-[200px] aspect-[9/16] mx-auto mb-6 rounded-[28px] bg-gradient-to-br from-brand-blue/5 to-brand-purple/5 border-2 border-dashed border-brand-blue/20 flex items-center justify-center relative overflow-hidden">
+            <div class="text-center">
+              <div class="relative w-16 h-16 mx-auto mb-3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none"
+                  stroke="#3478C6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto">
+                  <path
+                    d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+                  <path d="M5 3v4" />
+                  <path d="M19 17v4" />
+                  <path d="M3 5h4" />
+                  <path d="M17 19h4" />
+                </svg>
+                <div class="absolute inset-0 rounded-full bg-brand-blue/10"
+                  style="animation: sparkle 3s ease-in-out infinite;"></div>
+              </div>
+              <p class="text-sm font-semibold text-brand-blue">Processando<br>com I.A.</p>
+              <div class="flex gap-1 justify-center mt-3">
+                <div class="w-1.5 h-1.5 rounded-full bg-brand-blue"
+                  style="animation: badge-pulse 1.5s ease infinite 0s;"></div>
+                <div class="w-1.5 h-1.5 rounded-full bg-brand-blue"
+                  style="animation: badge-pulse 1.5s ease infinite 0.3s;"></div>
+                <div class="w-1.5 h-1.5 rounded-full bg-brand-blue"
+                  style="animation: badge-pulse 1.5s ease infinite 0.6s;"></div>
+              </div>
+            </div>
+          </div>
+          <h3 class="font-heading font-bold text-lg text-txt-primary mb-2">A I.A. Processa</h3>
+          <p class="text-sm text-txt-secondary leading-relaxed max-w-xs mx-auto">Nossa inteligência artificial
+            transcreve, analisa e estrutura as informações clínicas.</p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="text-center relative" data-aos="fade-up" data-aos-delay="400">
+          <div
+            class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-brand-blue text-white font-heading font-bold text-sm mb-6 shadow-brand-md">
+            3</div>
+          <div class="phone-frame w-[180px] sm:w-[200px] mx-auto mb-6 relative">
+            <div class="phone-notch" style="width:70px; height:18px; border-radius: 0 0 12px 12px; top:12px;"></div>
+            <img src="imagens_de_referencia/image%20copy%207.png" alt="Relatório Gerado" loading="lazy">
+          </div>
+          <h3 class="font-heading font-bold text-lg text-txt-primary mb-2">Revise e Assine</h3>
+          <p class="text-sm text-txt-secondary leading-relaxed max-w-xs mx-auto">Seu relatório fica pronto para revisão em segundos. Edite se necessário e baixe o PDF.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================ -->
+  <!-- BENEFITS -->
+  <!-- ============================================ -->
+  <section id="beneficios" class="py-20 lg:py-28 relative">
+    <div class="max-w-7xl mx-auto px-5 lg:px-8">
+      <!-- Header -->
+      <div class="text-center max-w-2xl mx-auto mb-16" data-aos="fade-up">
+        <span
+          class="inline-block text-sm font-semibold text-brand-green bg-brand-green/10 px-4 py-1.5 rounded-full mb-4">Benefícios</span>
+        <h2 class="font-heading font-extrabold text-2xl sm:text-3xl lg:text-4xl text-txt-primary tracking-tight mb-4">
+          Mais tempo para seus pacientes, menos tempo com papelada
+        </h2>
+      </div>
+
+      <!-- Benefit Rows -->
+      <div class="space-y-16 lg:space-y-24">
+        <!-- Benefit 1 -->
+        <div class="flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
+          <div class="flex-1 order-2 lg:order-1" data-aos="fade-right">
+            <div class="w-10 h-10 rounded-xl bg-brand-orange/10 flex items-center justify-center mb-4">
+              <i data-lucide="clock" class="w-5 h-5 text-brand-orange" stroke-width="2"></i>
+            </div>
+            <h3 class="font-heading font-bold text-xl lg:text-2xl text-txt-primary mb-3">Economize até 5 horas por
+              semana</h3>
+            <p class="text-txt-secondary leading-relaxed">Chega de digitar relatórios manualmente. A IA faz em minutos o
+              que levaria horas. Cada sessão gera documentação completa automaticamente.</p>
+          </div>
+          <div class="flex-1 order-1 lg:order-2 flex justify-center" data-aos="fade-left">
+            <div class="phone-frame w-[200px] lg:w-[230px] tilt-card">
+              <img src="imagens_de_referencia/image%20copy%202.png" alt="Agenda Integrada" loading="lazy">
+            </div>
+          </div>
+        </div>
+
+        <!-- Benefit 2 -->
+        <div class="flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
+          <div class="flex-1 flex justify-center" data-aos="fade-right">
+            <div class="phone-frame w-[200px] lg:w-[230px] tilt-card">
+              <img src="imagens_de_referencia/image%20copy%206.png" alt="Exportar Relatório" loading="lazy">
+            </div>
+          </div>
+          <div class="flex-1" data-aos="fade-left">
+            <div class="w-10 h-10 rounded-xl bg-brand-blue/8 flex items-center justify-center mb-4">
+              <i data-lucide="shield-check" class="w-5 h-5 text-brand-blue" stroke-width="2"></i>
+            </div>
+            <h3 class="font-heading font-bold text-xl lg:text-2xl text-txt-primary mb-3">Documentação Profissional e
+              Padronizada</h3>
+            <p class="text-txt-secondary leading-relaxed">Relatórios consistentes, completos e no formato que conselhos
+              e convênios exigem. PTIs e relatórios mensais gerados com um clique.</p>
+          </div>
+        </div>
+
+        <!-- Benefit 3 -->
+        <div class="flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
+          <div class="flex-1 order-2 lg:order-1" data-aos="fade-right">
+            <div class="w-10 h-10 rounded-xl bg-brand-purple/10 flex items-center justify-center mb-4">
+              <i data-lucide="heart" class="w-5 h-5 text-brand-purple" stroke-width="2"></i>
+            </div>
+            <h3 class="font-heading font-bold text-xl lg:text-2xl text-txt-primary mb-3">Foque no que Realmente Importa
+            </h3>
+            <p class="text-txt-secondary leading-relaxed">Menos burocracia significa mais presença e atenção durante os
+              atendimentos. Seus pacientes merecem 100% da sua atenção.</p>
+          </div>
+          <div class="flex-1 order-1 lg:order-2 flex justify-center" data-aos="fade-left">
+            <div class="phone-frame w-[200px] lg:w-[230px] tilt-card">
+              <img src="imagens_de_referencia/image%20copy%203.png" alt="Perfil do Paciente" loading="lazy">
+            </div>
+          </div>
+        </div>
+
+        <!-- Benefit 4 -->
+        <div class="flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
+          <div class="flex-1 flex justify-center" data-aos="fade-right">
+            <div class="phone-frame w-[200px] lg:w-[230px] tilt-card">
+              <img src="imagens_de_referencia/image%20copy%204.png" alt="Dados Clínicos" loading="lazy">
+            </div>
+          </div>
+          <div class="flex-1 lg:pl-6" data-aos="fade-left">
+            <div class="w-10 h-10 rounded-xl bg-brand-green/10 flex items-center justify-center mb-4">
+              <i data-lucide="zap" class="w-5 h-5 text-brand-green" stroke-width="2"></i>
+            </div>
+            <h3 class="font-heading font-bold text-xl lg:text-2xl text-txt-primary mb-3">Tudo Sempre Atualizado</h3>
+            <p class="text-txt-secondary leading-relaxed">Evoluções, prontuários, dados clínicos e agenda sempre em dia,
+              acessíveis de qualquer lugar. CID, diagnósticos e anamneses organizados.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================ -->
+  <!-- TESTIMONIALS -->
+  <!-- ============================================ -->
+  <section id="depoimentos" class="py-20 lg:py-28 bg-white relative">
+    <div class="absolute inset-0 noise-overlay"></div>
+    <div class="relative z-10 max-w-7xl mx-auto px-5 lg:px-8">
+      <!-- Header -->
+      <div class="text-center max-w-2xl mx-auto mb-16" data-aos="fade-up">
+        <span
+          class="inline-block text-sm font-semibold text-brand-purple bg-brand-purple/8 px-4 py-1.5 rounded-full mb-4">Depoimentos</span>
+        <h2 class="font-heading font-extrabold text-2xl sm:text-3xl lg:text-4xl text-txt-primary tracking-tight mb-4">
+          O que dizem os Terapeutas Ocupacionais
+        </h2>
+      </div>
+
+      <!-- Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+        <!-- Testimonial 1 -->
+        <div class="bg-surface-base rounded-2xl p-7 border-l-4 border-brand-blue relative" data-aos="fade-up">
+          <div class="text-brand-blue/15 absolute top-4 right-6">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
+            </svg>
+          </div>
+          <!-- Stars -->
+          <div class="flex gap-1 mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#F39C12"
+              stroke="none">
+              <polygon
+                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#F39C12"
+              stroke="none">
+              <polygon
+                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#F39C12"
+              stroke="none">
+              <polygon
+                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#F39C12"
+              stroke="none">
+              <polygon
+                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#F39C12"
+              stroke="none">
+              <polygon
+                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+          </div>
+          <p class="text-txt-primary text-sm leading-relaxed mb-6">"Antes eu levava 40 minutos por relatório. Com o
+            EvoluiTO, em 5 minutos está pronto. Mudou minha rotina completamente."</p>
+          <div class="flex items-center gap-3">
+            <div
+              class="w-10 h-10 rounded-full bg-brand-blue/10 flex items-center justify-center font-heading font-bold text-sm text-brand-blue">
+              AS</div>
+            <div>
+              <div class="font-heading font-semibold text-sm text-txt-primary">Dra. Ana Silva</div>
+              <div class="text-xs text-txt-light">TO — Pediatria</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Testimonial 2 -->
+        <div class="bg-surface-base rounded-2xl p-7 border-l-4 border-brand-purple relative" data-aos="fade-up"
+          data-aos-delay="100">
+          <div class="text-brand-purple/15 absolute top-4 right-6">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
+            </svg>
+          </div>
+          <div class="flex gap-1 mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#F39C12"
+              stroke="none">
+              <polygon
+                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#F39C12"
+              stroke="none">
+              <polygon
+                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#F39C12"
+              stroke="none">
+              <polygon
+                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#F39C12"
+              stroke="none">
+              <polygon
+                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#F39C12"
+              stroke="none">
+              <polygon
+                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+          </div>
+          <p class="text-txt-primary text-sm leading-relaxed mb-6">"A qualidade dos PTIs gerados é impressionante.
+            Precisei apenas de pequenos ajustes nas primeiras vezes. Agora confio completamente."</p>
+          <div class="flex items-center gap-3">
+            <div
+              class="w-10 h-10 rounded-full bg-brand-purple/10 flex items-center justify-center font-heading font-bold text-sm text-brand-purple">
+              CM</div>
+            <div>
+              <div class="font-heading font-semibold text-sm text-txt-primary">Dr. Carlos Mendes</div>
+              <div class="text-xs text-txt-light">TO — Neurologia</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Testimonial 3 -->
+        <div class="bg-surface-base rounded-2xl p-7 border-l-4 border-brand-green relative" data-aos="fade-up"
+          data-aos-delay="200">
+          <div class="text-brand-green/15 absolute top-4 right-6">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
+            </svg>
+          </div>
+          <div class="flex gap-1 mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#F39C12"
+              stroke="none">
+              <polygon
+                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#F39C12"
+              stroke="none">
+              <polygon
+                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#F39C12"
+              stroke="none">
+              <polygon
+                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#F39C12"
+              stroke="none">
+              <polygon
+                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#F39C12"
+              stroke="none">
+              <polygon
+                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+          </div>
+          <p class="text-txt-primary text-sm leading-relaxed mb-6">"Finalmente consigo sair do consultório no horário. A
+            documentação não é mais um peso. Recomendo para todos os colegas de profissão."</p>
+          <div class="flex items-center gap-3">
+            <div
+              class="w-10 h-10 rounded-full bg-brand-green/10 flex items-center justify-center font-heading font-bold text-sm text-brand-green">
+              MC</div>
+            <div>
+              <div class="font-heading font-semibold text-sm text-txt-primary">Dra. Marina Costa</div>
+              <div class="text-xs text-txt-light">TO — Geriatria</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================ -->
+  <!-- SOLICITAR / COMO ADQUIRIR -->
+  <!-- ============================================ -->
+  <section id="solicitar" class="py-20 lg:py-28 relative">
+    <div class="max-w-7xl mx-auto px-5 lg:px-8">
+      <!-- Header -->
+      <div class="text-center max-w-2xl mx-auto mb-16" data-aos="fade-up">
+        <span class="inline-block text-sm font-semibold text-brand-blue bg-brand-blue/8 px-4 py-1.5 rounded-full mb-4">Seu Aplicativo</span>
+        <h2 class="font-heading font-extrabold text-2xl sm:text-3xl lg:text-4xl text-txt-primary tracking-tight mb-4">
+          Um aplicativo feito sob medida para a sua clínica
+        </h2>
+        <p class="text-txt-secondary text-base lg:text-lg leading-relaxed max-w-xl mx-auto">
+          Cada profissional tem necessidades únicas. Por isso, o EvoluiTO é 100% personalizado: você escolhe as funcionalidades e paga apenas pelo que precisa.
+        </p>
+      </div>
+
+      <!-- How it works - 3 steps -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto mb-16">
+        <!-- Step 1 -->
+        <div class="text-center" data-aos="fade-up">
+          <div class="w-14 h-14 rounded-2xl bg-brand-blue/8 flex items-center justify-center mx-auto mb-5">
+            <i data-lucide="message-circle" class="w-7 h-7 text-brand-blue" stroke-width="2"></i>
+          </div>
+          <div class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-brand-blue text-white font-heading font-bold text-xs mb-3">1</div>
+          <h3 class="font-heading font-bold text-lg text-txt-primary mb-2">Fale com Nossa Equipe</h3>
+          <p class="text-sm text-txt-secondary leading-relaxed">Conte suas necessidades, rotina clínica e quais funcionalidades são essenciais para o seu dia a dia.</p>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="text-center" data-aos="fade-up" data-aos-delay="100">
+          <div class="w-14 h-14 rounded-2xl bg-brand-purple/8 flex items-center justify-center mx-auto mb-5">
+            <i data-lucide="settings" class="w-7 h-7 text-brand-purple" stroke-width="2"></i>
+          </div>
+          <div class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-brand-blue text-white font-heading font-bold text-xs mb-3">2</div>
+          <h3 class="font-heading font-bold text-lg text-txt-primary mb-2">Personalizamos para Você</h3>
+          <p class="text-sm text-txt-secondary leading-relaxed">Configuramos o aplicativo com os módulos, relatórios e integrações que fazem sentido para a sua prática.</p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="text-center" data-aos="fade-up" data-aos-delay="200">
+          <div class="w-14 h-14 rounded-2xl bg-brand-green/10 flex items-center justify-center mx-auto mb-5">
+            <i data-lucide="rocket" class="w-7 h-7 text-brand-green" stroke-width="2"></i>
+          </div>
+          <div class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-brand-blue text-white font-heading font-bold text-xs mb-3">3</div>
+          <h3 class="font-heading font-bold text-lg text-txt-primary mb-2">Pronto para Usar</h3>
+          <p class="text-sm text-txt-secondary leading-relaxed">Seu aplicativo fica pronto, com treinamento incluso e suporte dedicado. Relatórios automáticos desde o primeiro dia.</p>
+        </div>
+      </div>
+
+      <!-- Highlights + CTA -->
+      <div class="max-w-3xl mx-auto" data-aos="fade-up">
+        <div class="bg-white rounded-2xl p-8 lg:p-10 shadow-brand-lg border-2 border-brand-blue/10 text-center relative overflow-hidden">
+          <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-blue via-brand-purple to-brand-green"></div>
+
+          <h3 class="font-heading font-bold text-xl lg:text-2xl text-txt-primary mb-3">Pague apenas pelo que você precisa</h3>
+          <p class="text-txt-secondary leading-relaxed mb-8 max-w-lg mx-auto">Sem planos genéricos. O valor é definido com base nas funcionalidades que você escolher. Desde relatórios PTI automatizados até gestão completa de pacientes e agenda.</p>
+
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div class="flex flex-col items-center gap-2 p-3 rounded-xl bg-surface-base">
+              <i data-lucide="file-text" class="w-5 h-5 text-brand-blue" stroke-width="2"></i>
+              <span class="text-xs font-medium text-txt-secondary text-center">Relatórios Automáticos</span>
+            </div>
+            <div class="flex flex-col items-center gap-2 p-3 rounded-xl bg-surface-base">
+              <i data-lucide="mic" class="w-5 h-5 text-brand-purple" stroke-width="2"></i>
+              <span class="text-xs font-medium text-txt-secondary text-center">Transcrição com I.A.</span>
+            </div>
+            <div class="flex flex-col items-center gap-2 p-3 rounded-xl bg-surface-base">
+              <i data-lucide="users" class="w-5 h-5 text-brand-orange" stroke-width="2"></i>
+              <span class="text-xs font-medium text-txt-secondary text-center">Gestão de Pacientes</span>
+            </div>
+            <div class="flex flex-col items-center gap-2 p-3 rounded-xl bg-surface-base">
+              <i data-lucide="calendar-days" class="w-5 h-5 text-brand-green" stroke-width="2"></i>
+              <span class="text-xs font-medium text-txt-secondary text-center">Agenda Integrada</span>
+            </div>
+          </div>
+
+          <a href="#" class="btn-transition inline-flex items-center justify-center gap-2 px-8 py-4 bg-brand-blue text-white font-bold text-base rounded-2xl shadow-brand-glow hover:bg-brand-dark hover:translate-y-[-2px]">
+            Solicitar Meu Aplicativo
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          </a>
+          <p class="text-xs text-txt-light mt-4">Resposta em até 24 horas</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================ -->
+  <!-- FAQ -->
+  <!-- ============================================ -->
+  <section id="faq" class="py-20 lg:py-28 bg-white">
+    <div class="max-w-3xl mx-auto px-5 lg:px-8">
+      <!-- Header -->
+      <div class="text-center mb-12" data-aos="fade-up">
+        <span
+          class="inline-block text-sm font-semibold text-brand-blue bg-brand-blue/8 px-4 py-1.5 rounded-full mb-4">FAQ</span>
+        <h2 class="font-heading font-extrabold text-2xl sm:text-3xl lg:text-4xl text-txt-primary tracking-tight">
+          Perguntas Frequentes
+        </h2>
+      </div>
+
+      <!-- FAQ Items -->
+      <div class="space-y-3" data-aos="fade-up" data-aos-delay="100">
+        <div class="faq-item bg-surface-base rounded-xl border border-brd/50 overflow-hidden">
+          <button class="faq-toggle w-full flex items-center justify-between px-6 py-5 text-left btn-transition"
+            onclick="this.closest('.faq-item').classList.toggle('open')">
+            <span class="font-heading font-semibold text-txt-primary text-sm pr-4">O EvoluiTO substitui o Terapeuta
+              Ocupacional?</span>
+            <svg class="faq-chevron shrink-0 text-txt-light" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+          <div class="faq-answer px-6 pb-5">
+            <p class="text-sm text-txt-secondary leading-relaxed">Jamais. O EvoluiTO é uma ferramenta de assistência que
+              automatiza a documentação. Todas as decisões clínicas continuam sendo do profissional. A IA auxilia na
+              transcrição e estruturação, mas você sempre revisa e valida o conteúdo.</p>
+          </div>
+        </div>
+
+        <div class="faq-item bg-surface-base rounded-xl border border-brd/50 overflow-hidden">
+          <button class="faq-toggle w-full flex items-center justify-between px-6 py-5 text-left btn-transition"
+            onclick="this.closest('.faq-item').classList.toggle('open')">
+            <span class="font-heading font-semibold text-txt-primary text-sm pr-4">Meus dados e dos pacientes estão
+              seguros?</span>
+            <svg class="faq-chevron shrink-0 text-txt-light" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+          <div class="faq-answer px-6 pb-5">
+            <p class="text-sm text-txt-secondary leading-relaxed">Sim. Utilizamos criptografia de ponta a ponta e
+              servidores seguros em conformidade com a LGPD. Seus dados e os dados dos seus pacientes são protegidos com
+              os mais altos padrões de segurança.</p>
+          </div>
+        </div>
+
+        <div class="faq-item bg-surface-base rounded-xl border border-brd/50 overflow-hidden">
+          <button class="faq-toggle w-full flex items-center justify-between px-6 py-5 text-left btn-transition"
+            onclick="this.closest('.faq-item').classList.toggle('open')">
+            <span class="font-heading font-semibold text-txt-primary text-sm pr-4">Posso editar os relatórios gerados
+              pela IA?</span>
+            <svg class="faq-chevron shrink-0 text-txt-light" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+          <div class="faq-answer px-6 pb-5">
+            <p class="text-sm text-txt-secondary leading-relaxed">Claro! Todos os relatórios são totalmente editáveis
+              antes de finalizar. Você pode ajustar qualquer parte do texto, adicionar observações e personalizar
+              conforme necessário.</p>
+          </div>
+        </div>
+
+        <div class="faq-item bg-surface-base rounded-xl border border-brd/50 overflow-hidden">
+          <button class="faq-toggle w-full flex items-center justify-between px-6 py-5 text-left btn-transition"
+            onclick="this.closest('.faq-item').classList.toggle('open')">
+            <span class="font-heading font-semibold text-txt-primary text-sm pr-4">Funciona para todas as áreas da
+              Terapia Ocupacional?</span>
+            <svg class="faq-chevron shrink-0 text-txt-light" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+          <div class="faq-answer px-6 pb-5">
+            <p class="text-sm text-txt-secondary leading-relaxed">Sim, o EvoluiTO atende pediatria, neurologia,
+              geriatria, saúde mental, reabilitação física e todas as demais áreas da TO. Os modelos de relatório se
+              adaptam ao contexto clínico.</p>
+          </div>
+        </div>
+
+        <div class="faq-item bg-surface-base rounded-xl border border-brd/50 overflow-hidden">
+          <button class="faq-toggle w-full flex items-center justify-between px-6 py-5 text-left btn-transition"
+            onclick="this.closest('.faq-item').classList.toggle('open')">
+            <span class="font-heading font-semibold text-txt-primary text-sm pr-4">Preciso de internet para usar?</span>
+            <svg class="faq-chevron shrink-0 text-txt-light" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+          <div class="faq-answer px-6 pb-5">
+            <p class="text-sm text-txt-secondary leading-relaxed">Sim, o EvoluiTO é uma plataforma web que funciona no
+              navegador do seu celular ou computador. Você precisa de conexão para gravar, processar e acessar seus
+              dados.</p>
+          </div>
+        </div>
+
+        <div class="faq-item bg-surface-base rounded-xl border border-brd/50 overflow-hidden">
+          <button class="faq-toggle w-full flex items-center justify-between px-6 py-5 text-left btn-transition"
+            onclick="this.closest('.faq-item').classList.toggle('open')">
+            <span class="font-heading font-semibold text-txt-primary text-sm pr-4">Como cancelo minha assinatura?</span>
+            <svg class="faq-chevron shrink-0 text-txt-light" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+          <div class="faq-answer px-6 pb-5">
+            <p class="text-sm text-txt-secondary leading-relaxed">Você pode cancelar a qualquer momento diretamente nas
+              configurações da sua conta. Sem burocracia, sem multas. Seus dados ficam disponíveis por 30 dias após o
+              cancelamento.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================ -->
+  <!-- FINAL CTA -->
+  <!-- ============================================ -->
+  <section class="py-20 lg:py-28 relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-br from-brand-blue via-brand-dark to-[#1a3a8a]"></div>
+    <div class="absolute inset-0 noise-overlay"></div>
+    <div class="absolute top-[-30%] right-[-20%] w-[600px] h-[600px] rounded-full bg-white/5 blur-3xl"></div>
+    <div class="absolute bottom-[-30%] left-[-20%] w-[500px] h-[500px] rounded-full bg-brand-purple/10 blur-3xl"></div>
+
+    <div class="relative z-10 max-w-3xl mx-auto px-5 lg:px-8 text-center">
+      <h2
+        class="font-heading font-extrabold text-2xl sm:text-3xl lg:text-4xl xl:text-5xl text-white tracking-tight mb-6"
+        data-aos="fade-up">
+        Pronto para transformar sua prática clínica?
+      </h2>
+      <p class="text-lg text-blue-100/80 mb-10 max-w-xl mx-auto" data-aos="fade-up" data-aos-delay="100">
+        Junte-se a centenas de Terapeutas Ocupacionais que já economizam horas por semana com o EvoluiTO.
+      </p>
+      <div data-aos="fade-up" data-aos-delay="200">
+        <a href="#solicitar"
+          class="btn-transition inline-flex items-center gap-2 px-8 py-4 bg-white text-brand-dark font-bold text-lg rounded-2xl shadow-brand-lg hover:translate-y-[-2px] hover:shadow-[0_25px_50px_-12px_rgba(255,255,255,0.25)]">
+          Solicitar Meu Aplicativo
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m9 18 6-6-6-6" />
+          </svg>
+        </a>
+      </div>
+      <p class="text-sm text-blue-200/50 mt-6" data-aos="fade-up" data-aos-delay="300">Resposta em até 24 horas · Sem compromisso
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================ -->
+  <!-- FOOTER -->
+  <!-- ============================================ -->
+  <footer class="bg-[#1E293B] text-white pt-16 pb-8">
+    <div class="max-w-7xl mx-auto px-5 lg:px-8">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-10 lg:gap-16 mb-12">
+        <!-- Brand -->
+        <div class="col-span-2 md:col-span-1">
+          <a href="#" class="inline-flex items-center gap-1 font-heading font-extrabold text-xl tracking-tight mb-4">
+            <span class="text-white">Evolui</span><span class="text-brand-light">TO</span>
+          </a>
+          <p class="text-sm text-slate-400 leading-relaxed mb-6">A evolução inteligente da sua prática clínica. Mais
+            tempo para seus pacientes.</p>
+          <div class="flex gap-3">
+            <a href="#"
+              class="btn-transition w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center hover:bg-white/10"
+              aria-label="Instagram">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+              </svg>
+            </a>
+            <a href="#"
+              class="btn-transition w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center hover:bg-white/10"
+              aria-label="LinkedIn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+                <rect width="4" height="12" x="2" y="9" />
+                <circle cx="4" cy="4" r="2" />
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Produto -->
+        <div>
+          <h4 class="font-heading font-semibold text-sm text-white mb-4">Produto</h4>
+          <ul class="space-y-2.5">
+            <li><a href="#funcionalidades"
+                class="text-sm text-slate-400 hover:text-white transition-colors duration-200">Funcionalidades</a></li>
+            <li><a href="#solicitar"
+                class="text-sm text-slate-400 hover:text-white transition-colors duration-200">Como Adquirir</a></li>
+            <li><a href="#faq" class="text-sm text-slate-400 hover:text-white transition-colors duration-200">FAQ</a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Empresa -->
+        <div>
+          <h4 class="font-heading font-semibold text-sm text-white mb-4">Empresa</h4>
+          <ul class="space-y-2.5">
+            <li><a href="#" class="text-sm text-slate-400 hover:text-white transition-colors duration-200">Sobre</a>
+            </li>
+            <li><a href="#" class="text-sm text-slate-400 hover:text-white transition-colors duration-200">Blog</a></li>
+            <li><a href="#" class="text-sm text-slate-400 hover:text-white transition-colors duration-200">Contato</a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Legal -->
+        <div>
+          <h4 class="font-heading font-semibold text-sm text-white mb-4">Legal</h4>
+          <ul class="space-y-2.5">
+            <li><a href="#" class="text-sm text-slate-400 hover:text-white transition-colors duration-200">Termos de
+                Uso</a></li>
+            <li><a href="#"
+                class="text-sm text-slate-400 hover:text-white transition-colors duration-200">Privacidade</a></li>
+            <li><a href="#" class="text-sm text-slate-400 hover:text-white transition-colors duration-200">LGPD</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Bottom Bar -->
+      <div class="pt-8 border-t border-white/10 text-center">
+        <p class="text-sm text-slate-500">&copy; 2026 EvoluiTO. Todos os direitos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============================================ -->
+  <!-- SCRIPTS -->
+  <!-- ============================================ -->
+  <!-- GSAP -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12/dist/ScrollTrigger.min.js"></script>
+  <!-- Lenis -->
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1/dist/lenis.min.js"></script>
+  <!-- Vanilla Tilt -->
+  <script src="https://cdn.jsdelivr.net/npm/vanilla-tilt@1/dist/vanilla-tilt.min.js"></script>
+  <!-- AOS -->
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <!-- Lucide -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <script>
+      (function () {
+        'use strict';
+
+        // ---- Lucide Icons ----
+        lucide.createIcons();
+
+        // ---- AOS ----
+        AOS.init({ duration: 800, easing: 'ease-out-cubic', once: true, offset: 60 });
+
+        // ---- Lenis Smooth Scroll ----
+        const lenis = new Lenis({ duration: 1.2, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
+        function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+        requestAnimationFrame(raf);
+        // Sync with GSAP
+        gsap.ticker.add((time) => lenis.raf(time * 1000));
+        gsap.ticker.lagSmoothing(0);
+
+        // ---- Vanilla Tilt on feature cards ----
+        if (window.innerWidth > 768) {
+          document.querySelectorAll('.tilt-card').forEach(el => {
+            VanillaTilt.init(el, { max: 6, speed: 400, glare: true, 'max-glare': 0.1, scale: 1.02 });
+          });
+        }
+
+        // ---- Navbar Scroll ----
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+          if (window.scrollY > 50) { navbar.classList.add('nav-scrolled'); }
+          else { navbar.classList.remove('nav-scrolled'); }
+        }, { passive: true });
+
+        // ---- Mobile Menu ----
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+        menuToggle.addEventListener('click', () => mobileMenu.classList.toggle('open'));
+        document.querySelectorAll('.mobile-link').forEach(link => {
+          link.addEventListener('click', () => mobileMenu.classList.remove('open'));
+        });
+
+        // ---- Smooth Scroll Links ----
+        document.querySelectorAll('a[href^="#"]').forEach(a => {
+          a.addEventListener('click', (e) => {
+            const target = document.querySelector(a.getAttribute('href'));
+            if (target) { e.preventDefault(); lenis.scrollTo(target, { offset: -80 }); }
+          });
+        });
+
+        // ---- Cursor Glow ----
+        const glow = document.getElementById('cursor-glow');
+        if (window.innerWidth > 1024) {
+          let mx = 0, my = 0, cx = 0, cy = 0;
+          document.addEventListener('mousemove', (e) => { mx = e.clientX; my = e.clientY; });
+          (function moveGlow() {
+            cx += (mx - cx) * 0.1; cy += (my - cy) * 0.1;
+            glow.style.left = cx + 'px'; glow.style.top = cy + 'px';
+            requestAnimationFrame(moveGlow);
+          })();
+        }
+
+        // ---- Hero GSAP Animation ----
+        gsap.registerPlugin(ScrollTrigger);
+        const heroTl = gsap.timeline({ delay: 0.3 });
+        heroTl.from('.hero-el', { y: 40, opacity: 0, duration: 0.8, stagger: 0.15, ease: 'power3.out' });
+        heroTl.from('#hero-phone', { x: 60, opacity: 0, duration: 1, ease: 'power3.out' }, '-=0.5');
+
+        // ---- Hero Mouse Parallax ----
+        if (window.innerWidth > 1024) {
+          const heroPhone = document.getElementById('hero-phone');
+          document.addEventListener('mousemove', (e) => {
+            const x = (e.clientX - window.innerWidth / 2) / 25;
+            const y = (e.clientY - window.innerHeight / 2) / 25;
+            heroPhone.style.transform = `translateX(${x}px) translateY(${y}px)`;
+          });
+        }
+
+        // ---- Counter Animation ----
+        const counters = document.querySelectorAll('.counter');
+        const animateCounter = (el) => {
+          const target = parseFloat(el.dataset.target);
+          const suffix = el.dataset.suffix || '';
+          const decimals = parseInt(el.dataset.decimals) || 0;
+          const duration = 2000;
+          const start = performance.now();
+
+          function update(now) {
+            const progress = Math.min((now - start) / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3); // ease-out-cubic
+            const current = eased * target;
+            el.textContent = (decimals > 0 ? current.toFixed(decimals) : Math.floor(current).toLocaleString('pt-BR')) + suffix;
+            if (progress < 1) requestAnimationFrame(update);
+          }
+          requestAnimationFrame(update);
+        };
+
+        const counterObserver = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              animateCounter(entry.target);
+              counterObserver.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.5 });
+        counters.forEach(c => counterObserver.observe(c));
+
+        // ---- GSAP ScrollTrigger: Step line draw ----
+        gsap.to('.step-line', {
+          strokeDashoffset: 0,
+          duration: 1.5,
+          ease: 'power2.inOut',
+          scrollTrigger: { trigger: '#como-funciona', start: 'top 60%', end: 'bottom 40%', scrub: 1 }
+        });
+
+      })();
+  </script>
+
+</body>
+
+</html>
