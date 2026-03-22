@@ -4,7 +4,7 @@
 Landing page para o EvoluiTO - SaaS para Terapeutas Ocupacionais com IA.
 
 ## Status
-In Progress
+In Progress — Sessão 3 concluída
 
 ## Completed
 - [x] Criado `serve.mjs` - servidor HTTP local na porta 3000
@@ -20,6 +20,14 @@ In Progress
 - [x] Final CTA atualizado: "Solicitar Meu Aplicativo" + "Resposta em ate 24h"
 - [x] Footer "Precos" → "Como Adquirir"
 - [x] Fix alinhamento "Tudo Sempre Atualizado" (lg:pl-6)
+
+## Completed (Sessão 3)
+- [x] Seção "Como Funciona" substituída por player de vídeo elegante (browser chrome decorativo, badges flutuantes)
+- [x] Card de Guias adicionado em Features — destaque full-width verde com 3 sub-cards (Lembrete, Foto, Prova Documental)
+- [x] Nova seção Preços com 2 cards: Terapeuta (branco, R$600 promo) + Clínicas (dark gradient, Sob consulta)
+- [x] CSS dos phone frames melhorado: sombra tripla tintada, gradiente no body, reflexo interno
+- [x] Floating badges animados ao redor dos phones na seção Benefícios
+- [x] Link "Preços" adicionado na navbar (desktop + mobile) e footer
 
 ## Sections Implemented
 1. Navbar (sticky, frosted glass on scroll, mobile hamburger)
@@ -72,8 +80,8 @@ In Progress
 - Nenhum
 
 ## Resume From Here
-Todas as mudancas de modelo de negocio foram aplicadas. Proximo passo:
-- **Usuario quer atualizar as perguntas do FAQ** ("depois nos iremos para mudar aqui as perguntas")
-- Rodar `node serve.mjs` e abrir http://localhost:3000
-- Substituir depoimentos por reais quando disponiveis
-- Adicionar links reais de contato/WhatsApp nos botoes "Solicitar"
+Sessão 3 concluída. Próximos passos pendentes:
+- Atualizar perguntas do FAQ (usuário mencionou em sessão anterior)
+- Substituir depoimentos por reais quando disponíveis
+- Adicionar link real de WhatsApp no botão "Agendar Reunião" do card Clínicas (atualmente tem link genérico)
+- Rodar `node serve.mjs` e abrir http://localhost:3000 para revisar visualmente no browser real
