@@ -75,7 +75,108 @@
     .dot-grid {
       background-image: radial-gradient(circle, #3478C6 0.8px, transparent 0.8px);
       background-size: 32px 32px;
-      opacity: 0.04;
+      opacity: 0.055;
+    }
+
+    /* Technical line grid */
+    .line-grid {
+      background-image:
+        linear-gradient(rgba(52,120,198,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(52,120,198,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    /* Aurora blobs for hero */
+    @keyframes aurora-drift {
+      0%, 100% { transform: translate(0,0) scale(1); }
+      33%       { transform: translate(50px,-35px) scale(1.07); }
+      66%       { transform: translate(-30px,25px) scale(0.94); }
+    }
+    .aurora-blob {
+      animation: aurora-drift 20s ease-in-out infinite;
+    }
+    .aurora-blob-2 {
+      animation: aurora-drift 26s ease-in-out infinite reverse;
+      animation-delay: -9s;
+    }
+    .aurora-blob-3 {
+      animation: aurora-drift 16s ease-in-out infinite;
+      animation-delay: -5s;
+    }
+
+    /* Feature icon wrapper — unified monochromatic */
+    .icon-wrap {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      border: 1.5px solid rgba(52,120,198,0.18);
+      background: rgba(52,120,198,0.04);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+    .group:hover .icon-wrap {
+      border-color: rgba(52,120,198,0.35);
+      background: rgba(52,120,198,0.09);
+    }
+    .icon-wrap-sm {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      border: 1.5px solid rgba(52,120,198,0.18);
+      background: rgba(52,120,198,0.04);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* CTA shimmer */
+    @keyframes btn-shimmer {
+      from { background-position: -200% center; }
+      to   { background-position: 200% center; }
+    }
+    .btn-primary-shimmer {
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-primary-shimmer::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.18) 50%, transparent 70%);
+      background-size: 200% 100%;
+      animation: btn-shimmer 3.5s linear infinite;
+      pointer-events: none;
+    }
+
+    /* Card spotlight border on hover */
+    .card-spotlight {
+      position: relative;
+    }
+    .card-spotlight::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      background: linear-gradient(135deg, rgba(52,120,198,0) 0%, rgba(52,120,198,0.25) 50%, rgba(52,120,198,0) 100%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      border-radius: 17px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .card-spotlight:hover::before {
+      opacity: 1;
+    }
+
+    /* Stagger animation for feature cards */
+    @keyframes card-rise {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
     /* Shadows */
@@ -570,11 +671,13 @@
   <!-- ============================================ -->
   <section id="hero" class="relative min-h-screen flex items-center pt-20 lg:pt-0 overflow-hidden">
     <!-- Background -->
-    <div class="absolute inset-0 bg-gradient-to-br from-white via-[#f0f6ff] to-[#e8f0fe]"></div>
-    <div class="absolute inset-0 dot-grid"></div>
+    <div class="absolute inset-0" style="background: radial-gradient(ellipse 120% 80% at 60% 0%, #eaf2ff 0%, #f8fafc 45%, #f0f6ff 100%);"></div>
+    <div class="absolute inset-0 line-grid"></div>
     <div class="absolute inset-0 noise-overlay"></div>
-    <div class="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] rounded-full bg-brand-blue/5 blur-3xl"></div>
-    <div class="absolute bottom-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-brand-purple/5 blur-3xl"></div>
+    <!-- Aurora blobs -->
+    <div class="aurora-blob absolute top-[-15%] right-[-5%] w-[700px] h-[700px] rounded-full blur-3xl pointer-events-none" style="background: radial-gradient(circle, rgba(52,120,198,0.09) 0%, transparent 65%);"></div>
+    <div class="aurora-blob-2 absolute bottom-[-10%] left-[-8%] w-[550px] h-[550px] rounded-full blur-3xl pointer-events-none" style="background: radial-gradient(circle, rgba(29,78,216,0.07) 0%, transparent 65%);"></div>
+    <div class="aurora-blob-3 absolute top-[30%] left-[35%] w-[400px] h-[400px] rounded-full blur-3xl pointer-events-none" style="background: radial-gradient(circle, rgba(126,211,33,0.04) 0%, transparent 65%);"></div>
 
     <div class="relative z-10 max-w-7xl mx-auto px-5 lg:px-8 w-full py-16 lg:py-0">
       <div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
@@ -604,7 +707,7 @@
           <!-- CTAs -->
           <div class="hero-el flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-8">
             <a href="https://app.evoluito.com.br/register"
-              class="btn-transition inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-brand-blue text-white font-bold text-base rounded-2xl shadow-brand-glow hover:bg-brand-dark hover:translate-y-[-2px]">
+              class="btn-transition btn-primary-shimmer inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-brand-blue text-white font-bold text-base rounded-2xl shadow-brand-glow hover:bg-brand-dark hover:translate-y-[-2px]">
               Solicitar Meu Aplicativo
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -700,7 +803,7 @@
   <!-- ============================================ -->
   <!-- FEATURES -->
   <!-- ============================================ -->
-  <section id="funcionalidades" class="py-20 lg:py-28 relative">
+  <section id="funcionalidades" class="py-20 lg:py-28 relative line-grid">
     <div class="max-w-7xl mx-auto px-5 lg:px-8">
       <!-- Header -->
       <div class="text-center max-w-2xl mx-auto mb-16" data-aos="fade-up">
@@ -720,9 +823,8 @@
         <div
           class="tilt-card group bg-white rounded-2xl p-7 shadow-brand-md hover:shadow-brand-lg border border-brd/50 btn-transition hover:translate-y-[-4px]"
           data-aos="fade-up" data-aos-delay="0">
-          <div
-            class="w-12 h-12 rounded-xl bg-brand-blue/8 flex items-center justify-center mb-5 group-hover:bg-brand-blue/15 transition-colors duration-200">
-            <i data-lucide="mic" class="w-6 h-6 text-brand-blue" stroke-width="2"></i>
+          <div class="icon-wrap mb-5">
+            <i data-lucide="mic" class="w-5 h-5 text-brand-blue" stroke-width="1.5"></i>
           </div>
           <h3 class="font-heading font-bold text-lg text-txt-primary mb-2">Transcrição Inteligente</h3>
           <p class="text-sm text-txt-secondary leading-relaxed">Grave ou envie áudios dos atendimentos. Nossa IA
@@ -733,9 +835,8 @@
         <div
           class="tilt-card group bg-white rounded-2xl p-7 shadow-brand-md hover:shadow-brand-lg border border-brd/50 btn-transition hover:translate-y-[-4px]"
           data-aos="fade-up" data-aos-delay="100">
-          <div
-            class="w-12 h-12 rounded-xl bg-brand-purple/8 flex items-center justify-center mb-5 group-hover:bg-brand-purple/15 transition-colors duration-200">
-            <i data-lucide="file-text" class="w-6 h-6 text-brand-purple" stroke-width="2"></i>
+          <div class="icon-wrap mb-5">
+            <i data-lucide="file-text" class="w-5 h-5 text-brand-blue" stroke-width="1.5"></i>
           </div>
           <h3 class="font-heading font-bold text-lg text-txt-primary mb-2">Relatórios PTI Automáticos</h3>
           <p class="text-sm text-txt-secondary leading-relaxed">Planos Terapêuticos Individuais gerados com base na
@@ -746,9 +847,8 @@
         <div
           class="tilt-card group bg-white rounded-2xl p-7 shadow-brand-md hover:shadow-brand-lg border border-brd/50 btn-transition hover:translate-y-[-4px]"
           data-aos="fade-up" data-aos-delay="200">
-          <div
-            class="w-12 h-12 rounded-xl bg-brand-green/10 flex items-center justify-center mb-5 group-hover:bg-brand-green/20 transition-colors duration-200">
-            <i data-lucide="clipboard-list" class="w-6 h-6 text-brand-green" stroke-width="2"></i>
+          <div class="icon-wrap mb-5">
+            <i data-lucide="clipboard-list" class="w-5 h-5 text-brand-blue" stroke-width="1.5"></i>
           </div>
           <h3 class="font-heading font-bold text-lg text-txt-primary mb-2">Relatórios Estruturados</h3>
           <p class="text-sm text-txt-secondary leading-relaxed">Evoluções clínicas completas, organizadas e estruturadas automaticamente no formato ideal para conselhos e convênios.</p>
@@ -758,9 +858,8 @@
         <div
           class="tilt-card group bg-white rounded-2xl p-7 shadow-brand-md hover:shadow-brand-lg border border-brd/50 btn-transition hover:translate-y-[-4px]"
           data-aos="fade-up" data-aos-delay="300">
-          <div
-            class="w-12 h-12 rounded-xl bg-brand-orange/10 flex items-center justify-center mb-5 group-hover:bg-brand-orange/20 transition-colors duration-200">
-            <i data-lucide="users" class="w-6 h-6 text-brand-orange" stroke-width="2"></i>
+          <div class="icon-wrap mb-5">
+            <i data-lucide="users" class="w-5 h-5 text-brand-blue" stroke-width="1.5"></i>
           </div>
           <h3 class="font-heading font-bold text-lg text-txt-primary mb-2">Gestão de Pacientes</h3>
           <p class="text-sm text-txt-secondary leading-relaxed">Cadastro, histórico, documentos e evolução de cada
@@ -771,9 +870,8 @@
         <div
           class="tilt-card group bg-white rounded-2xl p-7 shadow-brand-md hover:shadow-brand-lg border border-brd/50 btn-transition hover:translate-y-[-4px]"
           data-aos="fade-up" data-aos-delay="400">
-          <div
-            class="w-12 h-12 rounded-xl bg-brand-blue/8 flex items-center justify-center mb-5 group-hover:bg-brand-blue/15 transition-colors duration-200">
-            <i data-lucide="calendar-days" class="w-6 h-6 text-brand-blue" stroke-width="2"></i>
+          <div class="icon-wrap mb-5">
+            <i data-lucide="calendar-days" class="w-5 h-5 text-brand-blue" stroke-width="1.5"></i>
           </div>
           <h3 class="font-heading font-bold text-lg text-txt-primary mb-2">Agenda Integrada</h3>
           <p class="text-sm text-txt-secondary leading-relaxed">Organize seus atendimentos, receba lembretes e mantenha
@@ -784,9 +882,8 @@
         <div
           class="tilt-card group bg-white rounded-2xl p-7 shadow-brand-md hover:shadow-brand-lg border border-brd/50 btn-transition hover:translate-y-[-4px]"
           data-aos="fade-up" data-aos-delay="500">
-          <div
-            class="w-12 h-12 rounded-xl bg-brand-purple/8 flex items-center justify-center mb-5 group-hover:bg-brand-purple/15 transition-colors duration-200">
-            <i data-lucide="bar-chart-3" class="w-6 h-6 text-brand-purple" stroke-width="2"></i>
+          <div class="icon-wrap mb-5">
+            <i data-lucide="bar-chart-3" class="w-5 h-5 text-brand-blue" stroke-width="1.5"></i>
           </div>
           <h3 class="font-heading font-bold text-lg text-txt-primary mb-2">Dashboard Completo</h3>
           <p class="text-sm text-txt-secondary leading-relaxed">Visualize pacientes ativos, sessões do dia, rascunhos
@@ -975,8 +1072,8 @@
         <!-- Benefit 1 -->
         <div class="flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
           <div class="flex-1 order-2 lg:order-1" data-aos="fade-right">
-            <div class="w-10 h-10 rounded-xl bg-brand-orange/10 flex items-center justify-center mb-4">
-              <i data-lucide="clock" class="w-5 h-5 text-brand-orange" stroke-width="2"></i>
+            <div class="icon-wrap-sm mb-4">
+              <i data-lucide="clock" class="w-4 h-4 text-brand-blue" stroke-width="1.5"></i>
             </div>
             <h3 class="font-heading font-bold text-xl lg:text-2xl text-txt-primary mb-3">Economize até 5 horas por
               semana</h3>
@@ -1014,8 +1111,8 @@
             </div>
           </div>
           <div class="flex-1" data-aos="fade-left">
-            <div class="w-10 h-10 rounded-xl bg-brand-blue/8 flex items-center justify-center mb-4">
-              <i data-lucide="shield-check" class="w-5 h-5 text-brand-blue" stroke-width="2"></i>
+            <div class="icon-wrap-sm mb-4">
+              <i data-lucide="shield-check" class="w-4 h-4 text-brand-blue" stroke-width="1.5"></i>
             </div>
             <h3 class="font-heading font-bold text-xl lg:text-2xl text-txt-primary mb-3">Documentação Profissional e
               Padronizada</h3>
@@ -1027,8 +1124,8 @@
         <!-- Benefit 3 -->
         <div class="flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
           <div class="flex-1 order-2 lg:order-1" data-aos="fade-right">
-            <div class="w-10 h-10 rounded-xl bg-brand-purple/10 flex items-center justify-center mb-4">
-              <i data-lucide="heart" class="w-5 h-5 text-brand-purple" stroke-width="2"></i>
+            <div class="icon-wrap-sm mb-4">
+              <i data-lucide="heart" class="w-4 h-4 text-brand-blue" stroke-width="1.5"></i>
             </div>
             <h3 class="font-heading font-bold text-xl lg:text-2xl text-txt-primary mb-3">Foque no que Realmente Importa
             </h3>
@@ -1062,8 +1159,8 @@
             </div>
           </div>
           <div class="flex-1 lg:pl-6" data-aos="fade-left">
-            <div class="w-10 h-10 rounded-xl bg-brand-green/10 flex items-center justify-center mb-4">
-              <i data-lucide="zap" class="w-5 h-5 text-brand-green" stroke-width="2"></i>
+            <div class="icon-wrap-sm mb-4">
+              <i data-lucide="zap" class="w-4 h-4 text-brand-blue" stroke-width="1.5"></i>
             </div>
             <h3 class="font-heading font-bold text-xl lg:text-2xl text-txt-primary mb-3">Tudo Sempre Atualizado</h3>
             <p class="text-txt-secondary leading-relaxed">Evoluções, prontuários, dados clínicos e agenda sempre em dia,
