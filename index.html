@@ -917,32 +917,34 @@
   <!-- ============================================ -->
   <!-- GUIAS — DEDICATED SECTION -->
   <!-- ============================================ -->
-  <section id="guias" class="py-20 lg:py-32 relative overflow-hidden" style="background: linear-gradient(160deg, #080f1a 0%, #0b1629 45%, #091221 100%);">
+  <section id="guias" class="py-20 lg:py-32 relative overflow-hidden">
+    <!-- Background igual ao Final CTA — cores da marca -->
+    <div class="absolute inset-0 bg-gradient-to-br from-brand-blue via-brand-dark to-[#1a3a8a]"></div>
     <!-- Noise texture -->
     <div class="absolute inset-0 noise-overlay pointer-events-none"></div>
-    <!-- Diagonal grid lines -->
-    <div class="absolute inset-0 pointer-events-none" style="background-image: linear-gradient(rgba(52,120,198,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(52,120,198,0.05) 1px, transparent 1px); background-size: 72px 72px;"></div>
+    <!-- Grid de linhas técnicas -->
+    <div class="absolute inset-0 pointer-events-none" style="background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px); background-size: 72px 72px;"></div>
     <!-- Aurora blobs animadas -->
-    <div class="aurora-blob absolute top-[-15%] right-[-5%] w-[600px] h-[600px] rounded-full pointer-events-none" style="background: radial-gradient(circle, rgba(52,120,198,0.12) 0%, transparent 65%);"></div>
-    <div class="aurora-blob-2 absolute bottom-[-10%] left-[10%] w-[450px] h-[450px] rounded-full pointer-events-none" style="background: radial-gradient(circle, rgba(126,211,33,0.06) 0%, transparent 65%);"></div>
+    <div class="aurora-blob absolute top-[-15%] right-[-5%] w-[600px] h-[600px] rounded-full pointer-events-none" style="background: radial-gradient(circle, rgba(255,255,255,0.07) 0%, transparent 65%);"></div>
+    <div class="aurora-blob-2 absolute bottom-[-10%] left-[10%] w-[450px] h-[450px] rounded-full pointer-events-none" style="background: radial-gradient(circle, rgba(126,211,33,0.08) 0%, transparent 65%);"></div>
     <!-- Top border accent -->
-    <div class="absolute top-0 left-0 right-0 h-px" style="background: linear-gradient(to right, transparent, rgba(52,120,198,0.6), rgba(126,211,33,0.3), transparent);"></div>
+    <div class="absolute top-0 left-0 right-0 h-px" style="background: linear-gradient(to right, transparent, rgba(255,255,255,0.25), transparent);"></div>
     <!-- Bottom border accent -->
-    <div class="absolute bottom-0 left-0 right-0 h-px" style="background: linear-gradient(to right, transparent, rgba(52,120,198,0.3), transparent);"></div>
+    <div class="absolute bottom-0 left-0 right-0 h-px" style="background: linear-gradient(to right, transparent, rgba(255,255,255,0.12), transparent);"></div>
 
     <div class="relative z-10 max-w-7xl mx-auto px-5 lg:px-8">
       <div class="flex flex-col lg:flex-row gap-12 lg:gap-20 items-center">
 
         <!-- Left: Content -->
         <div class="flex-1 max-w-xl" data-aos="fade-right">
-          <span class="inline-flex items-center gap-2 text-xs font-bold tracking-widest uppercase px-3 py-1.5 rounded-full mb-6" style="color: #7ED321; background: rgba(126,211,33,0.08); border: 1px solid rgba(126,211,33,0.18);">
+          <span class="inline-flex items-center gap-2 text-xs font-bold tracking-widest uppercase px-3 py-1.5 rounded-full mb-6" style="color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);">
             <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
             Proteja seu Faturamento
           </span>
 
           <h2 class="font-heading font-extrabold text-3xl sm:text-4xl lg:text-5xl leading-[1.05] tracking-tight text-white mb-6">
             Nunca Perca<br>
-            <span style="background: linear-gradient(90deg,#7ED321,#a8ed4a); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">Receita por Guia</span><br>
+            <span style="color: rgba(255,255,255,0.85); text-decoration: underline; text-decoration-color: rgba(126,211,33,0.6); text-underline-offset: 6px; text-decoration-thickness: 2px;">Receita por Guia</span><br>
             Não Gerada
           </h2>
 
@@ -951,17 +953,17 @@
           </p>
 
           <!-- Impact stat -->
-          <div class="guias-stat flex items-center gap-5 mb-8 p-5 rounded-2xl" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(126,211,33,0.2);">
+          <div class="guias-stat flex items-center gap-5 mb-8 p-5 rounded-2xl" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);">
             <div class="flex-1">
-              <div class="font-heading font-extrabold text-5xl leading-none mb-1.5" style="background: linear-gradient(90deg,#7ED321,#a8ed4a); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">R$12k+</div>
-              <div class="text-xs tracking-wide" style="color: rgba(255,255,255,0.4);">perdidos por ano em média sem controle de guias</div>
+              <div class="font-heading font-extrabold text-5xl leading-none mb-1.5 text-white">R$12k+</div>
+              <div class="text-xs tracking-wide" style="color: rgba(255,255,255,0.55);">perdidos por ano em média sem controle de guias</div>
             </div>
-            <div class="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center" style="border: 1px solid rgba(126,211,33,0.2); background: rgba(126,211,33,0.06);">
-              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(126,211,33,0.7)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            <div class="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center" style="border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.08);">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
             </div>
           </div>
 
-          <a href="https://app.evoluito.com.br/register" class="btn-transition btn-primary-shimmer inline-flex items-center gap-2.5 px-6 py-3.5 text-sm font-bold rounded-xl" style="background: linear-gradient(135deg,#7ED321,#6bc41a); color: #071009; box-shadow: 0 8px 24px rgba(126,211,33,0.25);">
+          <a href="https://app.evoluito.com.br/register" class="btn-transition btn-primary-shimmer inline-flex items-center gap-2.5 px-6 py-3.5 text-sm font-bold rounded-xl bg-white text-brand-dark hover:translate-y-[-2px] hover:shadow-[0_25px_50px_-12px_rgba(255,255,255,0.25)]">
             Solicitar Aplicativo
             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
           </a>
